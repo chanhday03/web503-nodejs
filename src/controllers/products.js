@@ -1,8 +1,14 @@
 import axios from "axios";
 
+import dotenv from "dotenv";
+import products from "../models/products";
+dotenv.config();
+
+const { DB_URL } = process.env;
 export const getAll = async (req, res) => {
   try {
-    const { data } = await axios.get(`http://localhost:3000/products`);
+    // const { data } = await axios.get(`${DB_URL}/products`);
+    const data =  await products.find({})
     if (!data) {
       return res.status(404).json({
         message: "Không tìm thấy sản phẩm",
@@ -22,13 +28,15 @@ export const getAll = async (req, res) => {
 export const getDetail = async (req, res) => {
   try {
     const id = req.params.id;
-    const datas = await axios.get(`http://localhost:3000/products/${id}`);
-    if (!datas) {
+    // const datas = await axios.get(`${DB_URL}/products/${id}`);
+    const data = await products.find({_id: id})
+    // Cach 2:
+    // const data = await products.findById(id)
+    if (!data) {
       return res.status(404).json({
         message: "Không tìm thấy sản phẩm",
       });
     }
-    const { data } = datas;
     return res.status(200).json({
       message: "Hiển thị chi tiết sản phẩm thành công!",
       datas: data,
@@ -44,10 +52,7 @@ export const update = async (req, res) => {
   try {
     const id = req.params.id;
     const body = req.body;
-    const { data } = await axios.put(
-      `http://localhost:3000/products/${id}`,
-      body
-    );
+    const { data } = await axios.put(`${DB_URL}/products/${id}`, body);
     if (!data) {
       return res.status(404).json({
         message: "Cập nhật sản phẩm thất bại!",
@@ -67,7 +72,8 @@ export const update = async (req, res) => {
 export const create = async (req, res) => {
   try {
     const body = req.body;
-    const { data } = await axios.post(`http://localhost:3000/products`, body);
+    // const { data } = await axios.post(`${DB_URL}/products`, body);
+    const data = await products.create(body)
     if (!data) {
       return res.status(404).json({
         message: "Thêm mới sản phẩm thất bại!",
@@ -87,9 +93,7 @@ export const create = async (req, res) => {
 export const remove = async (req, res) => {
   try {
     const id = req.params.id;
-    const { status } = await axios.delete(
-      `http://localhost:3000/products/${id}`
-    );
+    const { status } = await axios.delete(`${DB_URL}/products/${id}`);
     if (!status || status !== 200) {
       return res.status(404).json({
         message: "Xoá sản phẩm thất bại!",

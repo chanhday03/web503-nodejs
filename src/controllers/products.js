@@ -1,16 +1,16 @@
 import axios from "axios";
 
 import dotenv from "dotenv";
-import products from "../models/products";
+import Product from "../models/Product";
 dotenv.config();
 
 const { DB_URL } = process.env;
 export const getAll = async (req, res) => {
   try {
     // const { data } = await axios.get(`${DB_URL}/products`);
-    const data =  await products.find({})
+    const data = await Product.find({});
     // if (!data) {
-    if ( !data || data.length ===0 ) {
+    if (!data || data.length === 0) {
       return res.status(404).json({
         message: "Không tìm thấy sản phẩm",
       });
@@ -30,7 +30,7 @@ export const getDetail = async (req, res) => {
   try {
     const id = req.params.id;
     // const datas = await axios.get(`${DB_URL}/products/${id}`);
-    const data = await products.find({_id: id})
+    const data = await Product.find({ _id: id });
     // Cach 2:
     // const data = await products.findById(id)
     if (!data) {
@@ -53,8 +53,17 @@ export const update = async (req, res) => {
   try {
     const id = req.params.id;
     const body = req.body;
+    const { error } = productSchema.validate(body, { abortEarly: true });
+    if (error) {
+      return res.status(400).json({
+        message: error.details[0].message || "Please re-check data!!",
+      });
+    }
+    console.log(error);
     // const { data } = await axios.put(`${DB_URL}/products/${id}`, body);
-    const data = await products.findByIdAndUpdate( id , body , {new : true })
+    const data = await Product.findByIdAndUpdate(id, body, { new: true });
+    // Cach 2:
+    // const data = await products.updateOne({_id: id}, body, { new: true})
     if (!data) {
       return res.status(404).json({
         message: "Cập nhật sản phẩm thất bại!",
@@ -75,7 +84,7 @@ export const create = async (req, res) => {
   try {
     const body = req.body;
     // const { data } = await axios.post(`${DB_URL}/products`, body);
-    const data = await products.create(body)
+    const data = await Product.create(body);
     if (!data) {
       return res.status(404).json({
         message: "Thêm mới sản phẩm thất bại!",
@@ -95,8 +104,14 @@ export const create = async (req, res) => {
 export const remove = async (req, res) => {
   try {
     const id = req.params.id;
+    const { error } = productSchema.validate(body, { abortEarly: true });
+    if (error) {
+      return res.status(400).json({
+        message: error.details[0].message || "Please re-check data!!",
+      });
+    }
     // const { status } = await axios.delete(`${DB_URL}/products/${id}`);
-    const data = await products.findByIdAndDelete(id)
+    const data = await Product.findByIdAndDelete(id);
     if (!data) {
       return res.status(404).json({
         message: "Xoá sản phẩm thất bại!",
@@ -104,7 +119,7 @@ export const remove = async (req, res) => {
     }
     return res.status(200).json({
       message: "Xoá sản phẩm thành công!",
-      data
+      data,
     });
   } catch (error) {
     return res.status(500).json({

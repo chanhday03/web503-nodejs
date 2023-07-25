@@ -9,5 +9,6 @@ const productSchema = mongoose.Schema({
     required: true,
   },
   desc: String,
-});
+} , { versionKey: false, timestamps: true });
+
 export default mongoose.model("Product", productSchema);
